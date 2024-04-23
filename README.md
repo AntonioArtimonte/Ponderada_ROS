@@ -46,5 +46,6 @@ Não se esqueça de fontar o ambiente ROS 2 após a construção:
 Após, introduza dentro da pasta launch do workspace o seguinte comando:
 
 ```bash
+cd launch
 ros2 launch launch.py
 ```
