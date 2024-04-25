@@ -27,7 +27,7 @@ class DriverNode(Node):
         self.set_initial_pen_settings()
 
     def spawn_turtle(self):
-        self.get_logger().info('Waiting for Spawn service...')
+        self.get_logger().info('Aguardando serviço de Spawn...')
         self.spawn_client.wait_for_service()
         spawn_request = Spawn.Request()
         spawn_request.x = 20.0
@@ -39,9 +39,9 @@ class DriverNode(Node):
         try:
             response = future.result()
             self.turtle_name = response.name
-            self.get_logger().info(f'Spawned a turtle named: {self.turtle_name}')
+            self.get_logger().info(f'Tartura de nome: {self.turtle_name} spawnada')
         except Exception as e:
-            self.get_logger().error('Spawning failed: %r' % (e,))
+            self.get_logger().error('Falha na hora de spawnar: %r' % (e,))
 
     def timer_callback(self):
         msg = Twist()
@@ -53,7 +53,7 @@ class DriverNode(Node):
         self.publisher_.publish(msg)
 
     def set_initial_pen_settings(self):
-        self.get_logger().info('Waiting for SetPen service...')
+        self.get_logger().info('Aguardando serviço de SetPen...')
         self.pen_client.wait_for_service()
         req = SetPen.Request()
         req.r = self.pen_r
@@ -65,13 +65,14 @@ class DriverNode(Node):
         rclpy.spin_until_future_complete(self, future)
         try:
             future.result()
-            self.get_logger().info('Initial pen settings were successfully set.')
+            self.get_logger().info('Configurações da caneta setadas com sucesso.')
+            self.get_logger().info('Para matar a tartaruga, basta pressionar a tecla "Q"')
         except Exception as e:
-            self.get_logger().error('Setting pen failed: %r' % (e,))
+            self.get_logger().error('Setagem da caneta falhada: %r' % (e,))
 
     def kill_turtle(self):
         if rclpy.ok():
-            self.get_logger().info('Waiting for Kill service...')
+            self.get_logger().info('Esperando serviço de Kill...')
             self.kill_client.wait_for_service()
             kill_request = Kill.Request()
             kill_request.name = self.turtle_name
@@ -79,11 +80,11 @@ class DriverNode(Node):
             rclpy.spin_until_future_complete(self, future)
             try:
                 future.result()
-                self.get_logger().info(f'Turtle named {self.turtle_name} has been killed. Closing this terminal in 15 seconds')
+                self.get_logger().info(f'Tartaruga nome {self.turtle_name} foi morta. Fechando este terminal em 15 segundos')
             except Exception as e:
-                self.get_logger().error('Killing failed: %r' % (e,))
+                self.get_logger().error('Falha na morte: %r' % (e,))
         else:
-            self.get_logger().info('ROS is shutting down. No need to kill turtle.')
+            self.get_logger().info('ROS está fechando, sem necessidade de matar a tartaruga')
 
 def main(args=None):
     rclpy.init(args=args)
@@ -96,7 +97,7 @@ def main(args=None):
         while rclpy.ok():
             if select.select([sys.stdin], [], [], 0)[0]:
                 if sys.stdin.read(1) == 'q':
-                    node.get_logger().info('Q key pressed. Killing the turtle...')
+                    node.get_logger().info('Tecla Q pressionada, matando a tartaruga...')
                     node.kill_turtle()
                     time.sleep(15)
                     break
