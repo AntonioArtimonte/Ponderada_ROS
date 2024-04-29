@@ -22,10 +22,9 @@ Para usar este projeto, você precisará ter o seguinte instalado em seu sistema
 
 ## Instalação
 
-Para executar este projeto, clone este repositório em seu ambiente ROS 2 workspace:
+Para executar este projeto, clone este repositório:
 
 ```bash
-cd ~/dev_ws/src  # Ou qualquer que seja o seu workspace ROS 2
 git clone https://github.com/AntonioArtimonte/Ponderada_ROS
 ```
 
@@ -33,19 +32,20 @@ Após clonar o repositório, você precisará compilar o código fonte usando:
 
 
 ```bash
-cd ~/dev_ws
+cd Ponderada
 colcon build
 ```
 
 Não se esqueça de fontar o ambiente ROS 2 após a construção:
+Se estiver usando zsh, mude para setup.zsh
 
 ```bash
-. ~/dev_ws/install/setup.bash
+source install/local_setup.bash 
 ```
 
 Após, introduza dentro da pasta launch do workspace o seguinte comando:
 
 ```bash
-cd launch
+cd ponderada/launch
 ros2 launch launch.py
 ```
