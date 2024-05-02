@@ -49,3 +49,9 @@ Após, introduza dentro da pasta launch do workspace o seguinte comando:
 cd launch
 ros2 launch launch.py
 ```
+
+## Prova funcionamento
+
+É possível ver o video [clicando aqui](video.mp4)
+
+(Se o vídeo não funcionar, é possível dar play baixando o arquivo video.mp4 em seu computador e executá-lo localmente.)
