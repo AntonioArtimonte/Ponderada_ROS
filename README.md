@@ -50,6 +50,8 @@ cd ponderada/launch
 ros2 launch launch.py
 ```
 
+Este comando serve para iniciar os nós do ros2, sendo tanto o turtlesim_node quanto draw_circle
+
 ## Prova funcionamento
 
 É possível ver o video [clicando aqui](video.mp4)
