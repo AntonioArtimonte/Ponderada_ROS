@@ -11,9 +11,6 @@ import time
 class DriverNode(Node):
     def __init__(self):
         super().__init__('driver_node')
-        self.publisher_ = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
-        self.timer = self.create_timer(1, self.timer_callback)
-        self.pen_client = self.create_client(SetPen, '/turtle1/set_pen')
         self.spawn_client = self.create_client(Spawn, 'spawn')
         self.kill_client = self.create_client(Kill, 'kill')
 
@@ -24,14 +21,13 @@ class DriverNode(Node):
         self.pen_off = False
 
         self.spawn_turtle()
-        self.set_initial_pen_settings()
 
     def spawn_turtle(self):
         self.get_logger().info('Aguardando serviço de Spawn...')
         self.spawn_client.wait_for_service()
         spawn_request = Spawn.Request()
-        spawn_request.x = 20.0
-        spawn_request.y = 20.0
+        spawn_request.x = 2.0
+        spawn_request.y = 2.0
         spawn_request.theta = 0.0
         spawn_request.name = 'turtle2'
         future = self.spawn_client.call_async(spawn_request)
@@ -39,9 +35,16 @@ class DriverNode(Node):
         try:
             response = future.result()
             self.turtle_name = response.name
-            self.get_logger().info(f'Tartura de nome: {self.turtle_name} spawnada')
+            self.get_logger().info(f'Tartaruga de nome: {self.turtle_name} spawnada')
+            self.setup_turtle_controls()
         except Exception as e:
             self.get_logger().error('Falha na hora de spawnar: %r' % (e,))
+
+    def setup_turtle_controls(self):
+        self.publisher_ = self.create_publisher(Twist, f'/{self.turtle_name}/cmd_vel', 10)
+        self.pen_client = self.create_client(SetPen, f'/{self.turtle_name}/set_pen')
+        self.timer = self.create_timer(1, self.timer_callback)
+        self.set_initial_pen_settings()
 
     def timer_callback(self):
         msg = Twist()
@@ -66,32 +69,27 @@ class DriverNode(Node):
         try:
             future.result()
             self.get_logger().info('Configurações da caneta setadas com sucesso.')
-            self.get_logger().info('Para matar a tartaruga, basta pressionar a tecla "Q"')
+            self.get_logger().info('Para matar a tartaruga, pressione a tecla (Q)')
         except Exception as e:
             self.get_logger().error('Setagem da caneta falhada: %r' % (e,))
 
     def kill_turtle(self):
-        if rclpy.ok():
-            self.get_logger().info('Esperando serviço de Kill...')
-            self.kill_client.wait_for_service()
-            kill_request = Kill.Request()
-            kill_request.name = self.turtle_name
-            future = self.kill_client.call_async(kill_request)
-            rclpy.spin_until_future_complete(self, future)
-            try:
-                future.result()
-                self.get_logger().info(f'Tartaruga nome {self.turtle_name} foi morta. Fechando este terminal em 15 segundos')
-            except Exception as e:
-                self.get_logger().error('Falha na morte: %r' % (e,))
-        else:
-            self.get_logger().info('ROS está fechando, sem necessidade de matar a tartaruga')
+        self.get_logger().info('Esperando serviço de Kill...')
+        self.kill_client.wait_for_service()
+        kill_request = Kill.Request()
+        kill_request.name = self.turtle_name
+        future = self.kill_client.call_async(kill_request)
+        rclpy.spin_until_future_complete(self, future)
+        try:
+            future.result()
+            self.get_logger().info(f'Tartaruga de nome {self.turtle_name} foi morta. Fechando este terminal em 15 segundos')
+        except Exception as e:
+            self.get_logger().error(f'Falha na morte: {e}')
 
 def main(args=None):
     rclpy.init(args=args)
     node = DriverNode()
-    shutdown_called = False
     original_settings = termios.tcgetattr(sys.stdin)
-
     try:
         tty.setcbreak(sys.stdin.fileno())
         while rclpy.ok():
@@ -101,14 +99,10 @@ def main(args=None):
                     node.kill_turtle()
                     time.sleep(15)
                     break
-            rclpy.spin_once(node, timeout_sec=0.1) 
-    except KeyboardInterrupt:
-        pass
+            rclpy.spin_once(node, timeout_sec=0.1)
     finally:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, original_settings)
-        if not shutdown_called:
-            shutdown_called = True
-            rclpy.shutdown()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
