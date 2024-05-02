@@ -54,6 +54,6 @@ Este comando serve para iniciar os nós do ros2, sendo tanto o turtlesim_node qu
 
 ## Prova funcionamento
 
-É possível ver o video [clicando aqui](video.mp4)
+É possível ver o video [clicando aqui](https://drive.google.com/file/d/1sDPwlJBjfhNTAriTX7DLobCLL9370KkQ/view?usp=sharing)
 
 (Se o vídeo não funcionar, é possível dar play baixando o arquivo video.mp4 em seu computador e executá-lo localmente.)
